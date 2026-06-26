@@ -1,6 +1,11 @@
+import streamlit as st
 import requests
-from datetime import datetime, timedelta
-import json
+from datetime import datetime
+
+st.set_page_config(page_title="🌤️ Weather App", layout="centered")
+
+st.title("🌤️ Weather App")
+st.markdown("Get today's and tomorrow's forecast with clothing recommendations!")
 
 class WeatherApp:
     def __init__(self):
@@ -16,7 +21,7 @@ class WeatherApp:
             else:
                 return None, None, None
         except Exception as e:
-            print(f"Error getting location: {e}")
+            st.error(f"Error getting location: {e}")
             return None, None, None
     
     def get_weather(self, latitude, longitude):
@@ -32,10 +37,9 @@ class WeatherApp:
             if response.status_code == 200:
                 return response.json()
             else:
-                print("Error fetching weather data")
                 return None
         except Exception as e:
-            print(f"Error: {e}")
+            st.error(f"Error: {e}")
             return None
     
     def get_weather_description(self, code):
@@ -110,73 +114,100 @@ class WeatherApp:
             tips.append("😎 Sunny weather - wear sunglasses")
         
         return tips
+
+# Create app instance
+app = WeatherApp()
+
+# Initialize session state for location
+if "location_set" not in st.session_state:
+    st.session_state.location_set = False
+    st.session_state.lat = None
+    st.session_state.lon = None
+    st.session_state.city = None
+
+# Get location
+if not st.session_state.location_set:
+    with st.spinner("📍 Getting your location..."):
+        lat, lon, city = app.get_user_location()
     
-    def run(self):
-        """Main application flow"""
-        print("=" * 60)
-        print("🌤️  WEATHER APP - Today & Tomorrow Forecast 🌤️")
-        print("=" * 60)
+    if lat is None:
+        st.warning("⚠️ Could not detect your location automatically. Please enter it manually:")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            city = st.text_input("City name:", value="Tel Aviv", key="city_input")
+        with col2:
+            lat = st.number_input("Latitude:", value=32.0853, format="%.4f", key="lat_input")
+        with col3:
+            lon = st.number_input("Longitude:", value=34.7818, format="%.4f", key="lon_input")
         
-        # Get user location
-        print("\n📍 Getting your location...")
-        lat, lon, city = self.get_user_location()
-        
-        if lat is None:
-            print("❌ Could not determine your location")
-            print("Please enter location manually:")
-            city = input("Enter city name: ")
-            # For manual input, use a fixed location or ask for coordinates
-            print("Please enter latitude and longitude:")
-            lat = float(input("Latitude: "))
-            lon = float(input("Longitude: "))
-        else:
-            print(f"✅ Location detected: {city}")
-        
-        # Get weather data
-        print("\n📡 Fetching weather data...")
-        weather_data = self.get_weather(lat, lon)
+        if st.button("✅ Save Location"):
+            st.session_state.lat = lat
+            st.session_state.lon = lon
+            st.session_state.city = city
+            st.session_state.location_set = True
+            st.rerun()
+    else:
+        st.success(f"📍 Location detected: **{city}**")
+        st.session_state.lat = lat
+        st.session_state.lon = lon
+        st.session_state.city = city
+        st.session_state.location_set = True
+
+if st.session_state.location_set:
+    lat = st.session_state.lat
+    lon = st.session_state.lon
+    city = st.session_state.city
+
+# Get weather data
+if st.session_state.location_set:
+    if st.button("🔄 Get Weather", type="primary", use_container_width=True):
+        with st.spinner("📡 Fetching weather data..."):
+            weather_data = app.get_weather(lat, lon)
         
         if weather_data is None:
-            print("❌ Could not fetch weather data")
-            return
-        
-        print("\n" + "=" * 60)
-        print(f"📍 Weather for: {city}")
-        print("=" * 60)
-        
-        daily_data = weather_data['daily']
-        dates = daily_data['time'][:2]
-        temps_max = daily_data['temperature_2m_max'][:2]
-        temps_min = daily_data['temperature_2m_min'][:2]
-        weather_codes = daily_data['weathercode'][:2]
-        precipitation = daily_data.get('precipitation_sum', [0, 0])[:2]
-        
-        for i in range(2):
-            date_obj = datetime.strptime(dates[i], "%Y-%m-%d")
-            day_name = "TODAY" if i == 0 else "TOMORROW"
-            formatted_date = date_obj.strftime("%A, %B %d, %Y")
+            st.error("Could not fetch weather data")
+        else:
+            st.markdown("---")
+            st.markdown(f"## Weather for {city}")
             
-            print(f"\n🗓️  {day_name} - {formatted_date}")
-            print("-" * 60)
-            print(f"🌡️  Temperature: {temps_max[i]}°C (max) / {temps_min[i]}°C (min)")
-            print(f"☁️  Condition: {self.get_weather_description(weather_codes[i])}")
-            print(f"💧 Precipitation: {precipitation[i]}mm")
+            daily_data = weather_data['daily']
+            dates = daily_data['time'][:2]
+            temps_max = daily_data['temperature_2m_max'][:2]
+            temps_min = daily_data['temperature_2m_min'][:2]
+            weather_codes = daily_data['weathercode'][:2]
+            precipitation = daily_data.get('precipitation_sum', [0, 0])[:2]
             
-            print(f"\n👕 WHAT TO WEAR:")
-            tips = self.get_clothing_tips(
-                temps_max[i], 
-                temps_min[i], 
-                weather_codes[i], 
-                precipitation[i]
-            )
-            for tip in tips:
-                print(f"  {tip}")
-        
-        print("\n" + "=" * 60)
-        print("Have a great day! ☀️")
-        print("=" * 60)
+            for i in range(2):
+                date_obj = datetime.strptime(dates[i], "%Y-%m-%d")
+                day_name = "📅 TODAY" if i == 0 else "📅 TOMORROW"
+                formatted_date = date_obj.strftime("%A, %B %d, %Y")
+                
+                with st.container(border=True):
+                    st.markdown(f"### {day_name} - {formatted_date}")
+                    
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric("🌡️ Max Temp", f"{temps_max[i]}°C")
+                    with col2:
+                        st.metric("❄️ Min Temp", f"{temps_min[i]}°C")
+                    with col3:
+                        st.metric("💧 Precipitation", f"{precipitation[i]}mm")
+                    
+                    st.markdown(f"**☁️ Condition:** {app.get_weather_description(weather_codes[i])}")
+                    
+                    st.markdown("#### 👕 What to Wear:")
+                    tips = app.get_clothing_tips(
+                        temps_max[i], 
+                        temps_min[i], 
+                        weather_codes[i], 
+                        precipitation[i]
+                    )
+                    for tip in tips:
+                        st.markdown(f"- {tip}")
+            
+            st.markdown("---")
+            st.success("Have a great day! ☀️")
 
-if __name__ == "__main__":
-    app = WeatherApp()
-    app.run()
-
+st.markdown("---")
+st.markdown("**How to share this app:**")
+st.info("This app is ready to be deployed! Share it with others using Streamlit Cloud.")
