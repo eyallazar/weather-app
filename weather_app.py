@@ -127,11 +127,26 @@ if "location_set" not in st.session_state:
 
 # Get location
 if not st.session_state.location_set:
-    with st.spinner("📍 Getting your location..."):
-        lat, lon, city = app.get_user_location()
+    st.warning("⚠️ Could not detect your location automatically. Please enter it manually:")
     
-    if lat is None:
-        st.warning("⚠️ Could not detect your location automatically. Please enter it manually:")
+    # Dropdown for quick selection of popular cities
+    st.markdown("**Or select a city from the list:**")
+    popular_cities = {
+        "Tel Aviv, Israel": (32.0853, 34.7818),
+        "Jerusalem, Israel": (31.7683, 35.2137),
+        "Haifa, Israel": (32.8188, 35.0045),
+        "Beer Sheva, Israel": (31.2518, 34.7914),
+        "New York, USA": (40.7128, -74.0060),
+        "London, UK": (51.5074, -0.1278),
+        "Paris, France": (48.8566, 2.3522),
+        "Tokyo, Japan": (35.6762, 139.6503),
+        "Sydney, Australia": (-33.8688, 151.2093),
+        "Custom Location": ("custom", "custom")
+    }
+    
+    selected_city = st.selectbox("Select a city:", list(popular_cities.keys()))
+    
+    if selected_city == "Custom Location":
         col1, col2, col3 = st.columns(3)
         with col1:
             city = st.text_input("City name:", value="Tel Aviv", key="city_input")
@@ -139,19 +154,28 @@ if not st.session_state.location_set:
             lat = st.number_input("Latitude:", value=32.0853, format="%.4f", key="lat_input")
         with col3:
             lon = st.number_input("Longitude:", value=34.7818, format="%.4f", key="lon_input")
-        
-        if st.button("✅ Save Location"):
-            st.session_state.lat = lat
-            st.session_state.lon = lon
-            st.session_state.city = city
-            st.session_state.location_set = True
-            st.rerun()
     else:
-        st.success(f"📍 Location detected: **{city}**")
+        lat, lon = popular_cities[selected_city]
+        city = selected_city
+        st.success(f"✅ Location selected: **{city}**")
+    
+    # Show location preview
+    st.info(f"📍 **Location Preview:** {city} (Lat: {lat}, Lon: {lon})")
+    
+    if st.button("✅ Confirm Location", type="primary", use_container_width=True):
         st.session_state.lat = lat
         st.session_state.lon = lon
         st.session_state.city = city
         st.session_state.location_set = True
+        st.rerun()
+else:
+    st.success(f"📍 Location: **{st.session_state.city}**")
+    if st.button("🔄 Change Location", type="secondary", use_container_width=True):
+        st.session_state.location_set = False
+        st.session_state.lat = None
+        st.session_state.lon = None
+        st.session_state.city = None
+        st.rerun()
 
 if st.session_state.location_set:
     lat = st.session_state.lat
@@ -207,6 +231,14 @@ if st.session_state.location_set:
             
             st.markdown("---")
             st.success("Have a great day! ☀️")
+            
+            # Add button to change location
+            if st.button("🔄 Change Location", type="secondary", use_container_width=True, key="change_location_btn"):
+                st.session_state.location_set = False
+                st.session_state.lat = None
+                st.session_state.lon = None
+                st.session_state.city = None
+                st.rerun()
 
 st.markdown("---")
 st.markdown("**How to share this app:**")
