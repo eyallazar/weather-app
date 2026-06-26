@@ -132,15 +132,128 @@ if not st.session_state.location_set:
     # Dropdown for quick selection of popular cities
     st.markdown("**Or select a city from the list:**")
     popular_cities = {
+        # Israel - All Major Cities
         "Tel Aviv, Israel": (32.0853, 34.7818),
         "Jerusalem, Israel": (31.7683, 35.2137),
         "Haifa, Israel": (32.8188, 35.0045),
         "Beer Sheva, Israel": (31.2518, 34.7914),
+        "Ashdod, Israel": (31.8073, 34.6452),
+        "Ashkelon, Israel": (31.6703, 34.5703),
+        "Netanya, Israel": (32.3197, 34.8604),
+        "Ramat Gan, Israel": (32.0789, 34.8286),
+        "Givatayim, Israel": (32.0677, 34.8128),
+        "Bat Yam, Israel": (32.0104, 34.7577),
+        "Holon, Israel": (31.9768, 34.7614),
+        "Rishon LeZion, Israel": (31.9454, 34.7837),
+        "Petah Tikva, Israel": (32.0873, 34.8864),
+        "Herzliya, Israel": (32.1617, 34.7689),
+        "Rehovot, Israel": (31.8969, 34.8144),
+        "Kiryat Gat, Israel": (31.6049, 34.7691),
+        "Ramla, Israel": (31.9236, 34.8525),
+        "Lod, Israel": (31.9454, 34.8987),
+        "Beit Shemesh, Israel": (31.7383, 35.1903),
+        "Modiin, Israel": (31.8903, 35.1903),
+        "Nahariya, Israel": (33.0063, 35.0978),
+        "Kiryat Shmona, Israel": (33.2092, 35.4222),
+        "Eilat, Israel": (29.5581, 34.9516),
+        "Safed, Israel": (32.9726, 35.4907),
+        "Jaffa, Israel": (32.0545, 34.7604),
+        "Carmiel, Israel": (32.9226, 35.2857),
+        "Afula, Israel": (32.6141, 35.2831),
+        "Tiberias, Israel": (32.7940, 35.5300),
+        "Nazareth, Israel": (32.7004, 35.2975),
+        "Acre, Israel": (32.9226, 35.0685),
+        "Metula, Israel": (33.2440, 35.5750),
+        "Karmiel, Israel": (32.9226, 35.2857),
+        
+        # USA
         "New York, USA": (40.7128, -74.0060),
+        "Los Angeles, USA": (34.0522, -118.2437),
+        "Chicago, USA": (41.8781, -87.6298),
+        "Houston, USA": (29.7604, -95.3698),
+        "Miami, USA": (25.7617, -80.1918),
+        "San Francisco, USA": (37.7749, -122.4194),
+        "Seattle, USA": (47.6062, -122.3321),
+        "Denver, USA": (39.7392, -104.9903),
+        
+        # Europe
         "London, UK": (51.5074, -0.1278),
         "Paris, France": (48.8566, 2.3522),
+        "Berlin, Germany": (52.5200, 13.4050),
+        "Rome, Italy": (41.9028, 12.4964),
+        "Madrid, Spain": (40.4168, -3.7038),
+        "Amsterdam, Netherlands": (52.3676, 4.9041),
+        "Barcelona, Spain": (41.3851, 2.1734),
+        "Vienna, Austria": (48.2082, 16.3738),
+        "Prague, Czech Republic": (50.0755, 14.4378),
+        "Moscow, Russia": (55.7558, 37.6173),
+        "Istanbul, Turkey": (41.0082, 28.9784),
+        "Athens, Greece": (37.9838, 23.7275),
+        "Dublin, Ireland": (53.3498, -6.2603),
+        "Lisbon, Portugal": (38.7223, -9.1393),
+        "Zurich, Switzerland": (47.3769, 8.5472),
+        
+        # Asia
         "Tokyo, Japan": (35.6762, 139.6503),
+        "Beijing, China": (39.9042, 116.4074),
+        "Shanghai, China": (31.2304, 121.4737),
+        "Hong Kong": (22.3193, 114.1694),
+        "Singapore": (1.3521, 103.8198),
+        "Bangkok, Thailand": (13.7563, 100.5018),
+        "Jakarta, Indonesia": (6.1751, 106.8650),
+        "Manila, Philippines": (14.5995, 120.9842),
+        "Seoul, South Korea": (37.5665, 126.9780),
+        "Dubai, UAE": (25.2048, 55.2708),
+        "Mumbai, India": (19.0760, 72.8777),
+        "Delhi, India": (28.6139, 77.2090),
+        "Hanoi, Vietnam": (21.0285, 105.8542),
+        "Ho Chi Minh City, Vietnam": (10.7769, 106.6869),
+        "Kuala Lumpur, Malaysia": (3.1390, 101.6869),
+        "Karachi, Pakistan": (24.8607, 67.0011),
+        
+        # Australia & Pacific
         "Sydney, Australia": (-33.8688, 151.2093),
+        "Melbourne, Australia": (-37.8136, 144.9631),
+        "Brisbane, Australia": (-27.4698, 153.0251),
+        "Auckland, New Zealand": (-37.0882, 174.7674),
+        "Wellington, New Zealand": (-41.2865, 174.7762),
+        "Fiji": (-17.7997, 178.0655),
+        
+        # South America
+        "São Paulo, Brazil": (-23.5505, -46.6333),
+        "Rio de Janeiro, Brazil": (-22.9068, -43.1729),
+        "Buenos Aires, Argentina": (-34.6037, -58.3816),
+        "Lima, Peru": (-12.0464, -77.0428),
+        "Bogotá, Colombia": (4.7110, -74.0721),
+        "Cartagena, Colombia": (10.3910, -75.4794),
+        "Santiago, Chile": (-33.8688, -51.2093),
+        "Mexico City, Mexico": (19.4326, -99.1332),
+        
+        # Africa
+        "Cairo, Egypt": (30.0444, 31.2357),
+        "Lagos, Nigeria": (6.5244, 3.3792),
+        "Johannesburg, South Africa": (-26.2023, 28.0436),
+        "Cape Town, South Africa": (-33.9249, 18.4241),
+        "Nairobi, Kenya": (-1.2865, 36.8172),
+        "Casablanca, Morocco": (33.5731, -7.5898),
+        "Dar es Salaam, Tanzania": (-6.8000, 39.2833),
+        "Addis Ababa, Ethiopia": (9.0320, 38.7469),
+        "Accra, Ghana": (5.6037, -0.1870),
+        "Algiers, Algeria": (36.7538, 3.0588),
+        
+        # Middle East
+        "Beirut, Lebanon": (33.8547, 35.5017),
+        "Baghdad, Iraq": (33.3128, 44.3615),
+        "Tehran, Iran": (35.6892, 51.3890),
+        "Riyadh, Saudi Arabia": (24.7136, 46.6753),
+        "Kuwait City, Kuwait": (29.3759, 47.9774),
+        
+        # Canada
+        "Toronto, Canada": (43.6532, -79.3832),
+        "Vancouver, Canada": (49.2827, -123.1207),
+        "Montreal, Canada": (45.5017, -73.5673),
+        
+        # Custom
         "Custom Location": ("custom", "custom")
     }
     
