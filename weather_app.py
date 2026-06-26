@@ -127,7 +127,27 @@ if "location_set" not in st.session_state:
 
 # Get location
 if not st.session_state.location_set:
-    st.warning("⚠️ Could not detect your location automatically. Please enter it manually:")
+    st.warning("⚠️ Please select your location to get weather forecast")
+    
+    # Auto-detect button
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🌍 Auto-Detect My Location", type="primary", use_container_width=True):
+            with st.spinner("📍 Detecting your location..."):
+                lat, lon, city = app.get_user_location()
+            
+            if lat is not None:
+                st.session_state.lat = lat
+                st.session_state.lon = lon
+                st.session_state.city = city
+                st.session_state.location_set = True
+                st.success(f"✅ Location detected: **{city}**")
+                st.rerun()
+            else:
+                st.error("❌ Could not detect your location. Please select manually below.")
+    
+    with col2:
+        st.markdown("")  # Spacer
     
     # Dropdown for quick selection of popular cities
     st.markdown("**Or select a city from the list:**")
